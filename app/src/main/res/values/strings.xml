@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AlanzokaWallpaper</string>
+    <string name="label_home_wallpaper">Wallpaper - Tela Inicial</string>
+    <string name="label_lock_wallpaper">Wallpaper - Tela de Bloqueio</string>
+    <string name="label_sound_toggle">Som ao desbloquear</string>
+    <string name="btn_apply">Aplicar Wallpapers</string>
+    <string name="desc_home_preview">Preview do wallpaper da tela inicial</string>
+    <string name="desc_lock_preview">Preview do wallpaper da tela de bloqueio</string>
+</resources>
