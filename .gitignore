@@ -9,3 +9,5 @@
 .cxx
 local.properties
 .claude/
+*.jks
+*.keystore
