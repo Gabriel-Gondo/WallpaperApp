@@ -8,7 +8,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.wallpaperapp"
+        applicationId = "com.alanzoka.wallpaperapp"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

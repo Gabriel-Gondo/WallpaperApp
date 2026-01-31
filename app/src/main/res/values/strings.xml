@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AlanzokaWallpaper</string>
+    <string name="app_name">WallpaperSound</string>
     <string name="label_home_wallpaper">Wallpaper - Tela Inicial</string>
     <string name="label_lock_wallpaper">Wallpaper - Tela de Bloqueio</string>
     <string name="label_sound_toggle">Som ao desbloquear</string>
-    <string name="btn_apply">Aplicar Wallpapers</string>
+    <string name="btn_apply">Aplicar</string>
+    <string name="btn_choose_image">Escolher Imagem</string>
+    <string name="btn_choose_sound">Escolher Som</string>
+    <string name="no_sound_selected">Nenhum som selecionado</string>
     <string name="desc_home_preview">Preview do wallpaper da tela inicial</string>
     <string name="desc_lock_preview">Preview do wallpaper da tela de bloqueio</string>
+    <string name="label_lock_sound_toggle">Som ao bloquear</string>
+    <string name="btn_play_sound">Ouvir</string>
+    <string name="btn_stop_sound">Parar</string>
 </resources>

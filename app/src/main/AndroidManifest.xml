@@ -30,7 +30,7 @@
             android:foregroundServiceType="specialUse">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Play sound on device unlock" />
+                android:value="Play sound on device unlock and lock" />
         </service>
 
         <receiver

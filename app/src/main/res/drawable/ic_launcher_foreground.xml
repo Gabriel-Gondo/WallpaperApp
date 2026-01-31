@@ -4,14 +4,34 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <group
-        android:translateX="22"
-        android:translateY="22">
-        <path
-            android:fillColor="#FFFFFF"
-            android:pathData="M32,4C16.536,4 4,16.536 4,32s12.536,28 28,28 28,-12.536 28,-28S47.464,4 32,4zM32,52c-11.046,0 -20,-8.954 -20,-20s8.954,-20 20,-20 20,8.954 20,20 -8.954,20 -20,20z" />
-        <path
-            android:fillColor="#FFFFFF"
-            android:pathData="M32,16c-8.837,0 -16,7.163 -16,16s7.163,16 16,16 16,-7.163 16,-16 -7.163,-16 -16,-16zM40,34h-6v6h-4v-6h-6v-4h6v-6h4v6h6v4z" />
-    </group>
+
+    <!-- Speaker body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M34,42 L42,42 L52,32 L52,76 L42,66 L34,66 Z" />
+
+    <!-- Sound wave 1 (small) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M58,46 C62,50 62,58 58,62" />
+
+    <!-- Sound wave 2 (medium) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M64,38 C72,46 72,62 64,70" />
+
+    <!-- Sound wave 3 (large) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M70,30 C82,42 82,66 70,78" />
+
 </vector>

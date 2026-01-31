@@ -9,22 +9,42 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.res.AssetFileDescriptor
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import java.io.File
 
 class UnlockSoundService : Service() {
 
     private var mediaPlayer: MediaPlayer? = null
+    private var lockMediaPlayer: MediaPlayer? = null
 
     private val unlockReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == Intent.ACTION_USER_PRESENT) {
-                Log.d(TAG, "ACTION_USER_PRESENT received — playing sound")
-                playUnlockSound()
+                val prefs = context.getSharedPreferences(
+                    MainActivity.PREFS_NAME, Context.MODE_PRIVATE
+                )
+                if (prefs.getBoolean(MainActivity.KEY_SOUND_ENABLED, false)) {
+                    Log.d(TAG, "ACTION_USER_PRESENT received — playing sound")
+                    playUnlockSound()
+                }
+            }
+        }
+    }
+
+    private val screenOffReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == Intent.ACTION_SCREEN_OFF) {
+                val prefs = context.getSharedPreferences(
+                    MainActivity.PREFS_NAME, Context.MODE_PRIVATE
+                )
+                if (prefs.getBoolean(MainActivity.KEY_LOCK_SOUND_ENABLED, false)) {
+                    Log.d(TAG, "ACTION_SCREEN_OFF received — playing lock sound")
+                    playLockSound()
+                }
             }
         }
     }
@@ -34,13 +54,16 @@ class UnlockSoundService : Service() {
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, buildNotification())
 
-        val filter = IntentFilter(Intent.ACTION_USER_PRESENT)
+        val unlockFilter = IntentFilter(Intent.ACTION_USER_PRESENT)
+        val screenOffFilter = IntentFilter(Intent.ACTION_SCREEN_OFF)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(unlockReceiver, filter, RECEIVER_EXPORTED)
+            registerReceiver(unlockReceiver, unlockFilter, RECEIVER_EXPORTED)
+            registerReceiver(screenOffReceiver, screenOffFilter, RECEIVER_EXPORTED)
         } else {
-            registerReceiver(unlockReceiver, filter)
+            registerReceiver(unlockReceiver, unlockFilter)
+            registerReceiver(screenOffReceiver, screenOffFilter)
         }
-        Log.d(TAG, "Service created — receiver registered")
+        Log.d(TAG, "Service created — receivers registered")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -49,11 +72,10 @@ class UnlockSoundService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        try {
-            unregisterReceiver(unlockReceiver)
-        } catch (_: IllegalArgumentException) {
-        }
+        try { unregisterReceiver(unlockReceiver) } catch (_: IllegalArgumentException) {}
+        try { unregisterReceiver(screenOffReceiver) } catch (_: IllegalArgumentException) {}
         releasePlayer()
+        releaseLockPlayer()
         Log.d(TAG, "Service destroyed")
     }
 
@@ -63,10 +85,13 @@ class UnlockSoundService : Service() {
         releasePlayer()
 
         try {
-            val afd: AssetFileDescriptor = assets.openFd("alanzoka/sound.mp3")
+            val soundFile = File(filesDir, MainActivity.FILE_SOUND)
+            if (!soundFile.exists()) {
+                Log.w(TAG, "Sound file not found")
+                return
+            }
             mediaPlayer = MediaPlayer().apply {
-                setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-                afd.close()
+                setDataSource(soundFile.absolutePath)
                 prepare()
                 setOnCompletionListener { mp ->
                     mp.release()
@@ -76,29 +101,62 @@ class UnlockSoundService : Service() {
                 }
                 start()
             }
-            Log.d(TAG, "Sound playing")
+            Log.d(TAG, "Unlock sound playing")
         } catch (e: Exception) {
-            Log.e(TAG, "Error playing sound", e)
+            Log.e(TAG, "Error playing unlock sound", e)
             releasePlayer()
+        }
+    }
+
+    private fun playLockSound() {
+        releaseLockPlayer()
+
+        try {
+            val soundFile = File(filesDir, MainActivity.FILE_LOCK_SOUND)
+            if (!soundFile.exists()) {
+                Log.w(TAG, "Lock sound file not found")
+                return
+            }
+            lockMediaPlayer = MediaPlayer().apply {
+                setDataSource(soundFile.absolutePath)
+                prepare()
+                setOnCompletionListener { mp ->
+                    mp.release()
+                    if (lockMediaPlayer === mp) {
+                        lockMediaPlayer = null
+                    }
+                }
+                start()
+            }
+            Log.d(TAG, "Lock sound playing")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error playing lock sound", e)
+            releaseLockPlayer()
         }
     }
 
     private fun releasePlayer() {
         try {
             mediaPlayer?.release()
-        } catch (_: Exception) {
-        }
+        } catch (_: Exception) {}
         mediaPlayer = null
+    }
+
+    private fun releaseLockPlayer() {
+        try {
+            lockMediaPlayer?.release()
+        } catch (_: Exception) {}
+        lockMediaPlayer = null
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Som de Desbloqueio",
+                "Sons de Bloqueio/Desbloqueio",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Mantém o serviço de som de desbloqueio ativo"
+                description = "Mantém o serviço de sons ativo"
                 setShowBadge(false)
             }
             val manager = getSystemService(NotificationManager::class.java)
@@ -114,8 +172,8 @@ class UnlockSoundService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("WallpaperApp")
-            .setContentText("Som de desbloqueio ativo")
+            .setContentTitle("WallpaperSound")
+            .setContentText("Sons de bloqueio/desbloqueio ativos")
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
